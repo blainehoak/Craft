@@ -5,7 +5,6 @@ Sampling methods for replicated designs
 from abc import ABC, abstractmethod
 
 import numpy as np
-import tensorflow as tf
 import scipy
 
 
@@ -55,21 +54,6 @@ class ScipySampler(Sampler):
         except AttributeError as err:
             raise ModuleNotFoundError("Xplique need scipy>=1.7 to use this sampling.") from err
 
-
-class TFSobolSequence(Sampler):
-    """
-    Tensorflow Sobol LP tau sequence sampler.
-    Ref. I. M. Sobol., The distribution of points in a cube and the accurate evaluation of
-    integrals (1967).
-    https://www.sciencedirect.com/science/article/abs/pii/0041555367901449
-    """
-
-    def __call__(self, dimension, nb_design):
-        sampling_ab = tf.math.sobol_sample(dimension*2, nb_design, dtype=tf.float32).numpy()
-        sampling_a, sampling_b = sampling_ab[:, :dimension], sampling_ab[:, dimension:]
-        replicated_c = self.build_replicated_design(sampling_a, sampling_b)
-
-        return np.concatenate([sampling_a, sampling_b, replicated_c], 0)
 
 
 class ScipySobolSequence(ScipySampler):
